@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GST Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .radio-group {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>GST Calculator</h2>
+        <label for="amount">Amount (in ₹):</label>
+        <input type="number" id="amount" placeholder="Enter amount" oninput="calculateGST()">
+
+        <label>Select GST Rate (%):</label>
+        <div class="radio-group">
+            <input type="radio" id="gst5" name="gstRate" value="5" onchange="calculateGST()">
+            <label for="gst5">5%</label><br>
+
+            <input type="radio" id="gst12" name="gstRate" value="12" onchange="calculateGST()">
+            <label for="gst12">12%</label><br>
+
+            <input type="radio" id="gst18" name="gstRate" value="18" checked onchange="calculateGST()">
+            <label for="gst18">18%</label><br>
+
+            <input type="radio" id="gst28" name="gstRate" value="28" onchange="calculateGST()">
+            <label for="gst28">28%</label>
+        </div>
+
+        <label>Select Calculation Type:</label>
+        <div class="radio-group">
+            <input type="radio" id="includingGST" name="calcType" value="including" checked onchange="calculateGST()">
+            <label for="includingGST">Including GST</label><br>
+
+            <input type="radio" id="excludingGST" name="calcType" value="excluding" onchange="calculateGST()">
+            <label for="excludingGST">Excluding GST</label>
+        </div>
+
+        <div class="result" id="result">
+            <!-- Results will be shown here -->
+        </div>
+    </div>
+
+    <script>
+        function calculateGST() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const gstRate = parseFloat(document.querySelector('input[name="gstRate"]:checked').value);
+            const calcType = document.querySelector('input[name="calcType"]:checked').value;
+
+            if (isNaN(amount) || amount <= 0) {
+                document.getElementById('result').innerHTML = "<p>Please enter a valid amount.</p>";
+                return;
+            }
+
+            let gstAmount, totalAmount, preGSTAmount, totalLabel;
+
+            if (calcType === 'including') {
+                // GST is already included, so we derive the pre-GST amount and GST amount
+                preGSTAmount = amount / (1 + (gstRate / 100));
+                gstAmount = amount - preGSTAmount;
+                totalAmount = amount; // Since it's already including GST
+                totalLabel = "Post-GST Amount";
+            } else {
+                // GST is excluded, so we calculate GST based on the base amount
+                gstAmount = (amount * gstRate) / 100;
+                totalAmount = amount + gstAmount;
+                preGSTAmount = amount; // Pre-GST amount is same as entered amount
+                totalLabel = "Post-GST Amount";
+            }
+
+            const preLabel = "Pre-GST Amount";
+
+            document.getElementById('result').innerHTML = `
+                <p>${preLabel}: ₹${preGSTAmount.toFixed(2)}</p>
+                <p>GST Amount: ₹${gstAmount.toFixed(2)}</p>
+                <p>${totalLabel}: ₹${totalAmount.toFixed(2)}</p>
+            `;
+        }
+
+        // Run calculation when the page loads if there are any default values
+        window.onload = calculateGST;
+    </script>
+</body>
+</html>
